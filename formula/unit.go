@@ -53,7 +53,7 @@ func ToKilowatt(w interface{}) Kilowatt {
 	return Kilowatt(SI(w) / 1000)
 }
 
-// 英制马力
+// 功率：英制马力
 type HorsePower float64
 
 func (hp HorsePower) SI() float64 {
@@ -68,7 +68,7 @@ func ToHorsePower(w interface{}) HorsePower {
 	return HorsePower(SI(w) / 745.7)
 }
 
-// 公制马力
+// 功率：公制马力
 type PS float64
 
 func (ps PS) SI() float64 {
@@ -83,7 +83,7 @@ func ToPS(w interface{}) PS {
 	return PS(SI(w) / 735.5)
 }
 
-// 千瓦时
+// 能量：千瓦时
 type KilowattHour float64
 
 func (kWh KilowattHour) SI() float64 {
@@ -98,7 +98,7 @@ func ToKilowattHour(j interface{}) KilowattHour {
 	return KilowattHour(SI(j)) / 3600 / 1000
 }
 
-// 百公里油耗
+// 油耗：升/百公里
 type LiterPer100Kilometer float64
 
 func (lphkm LiterPer100Kilometer) SI() float64 {
@@ -111,4 +111,64 @@ func (lphkm LiterPer100Kilometer) String() string {
 
 func ToLiterPer100Kilometer(v interface{}) LiterPer100Kilometer {
 	return LiterPer100Kilometer(SI(v)) * 1000 / (100 * 1000)
+}
+
+// 转速：转/分钟
+type RotationPerMinute float64
+
+func (rpm RotationPerMinute) SI() float64 {
+	return float64(rpm) / 60
+}
+
+func (rpm RotationPerMinute) String() string {
+	return fmt.Sprintf("%.5gr/min", float64(rpm))
+}
+
+func ToRotationPerMinute(v interface{}) RotationPerMinute {
+	return RotationPerMinute(SI(v) * 60)
+}
+
+// 扭矩：牛米
+type NewtonMeter float64
+
+func (nm NewtonMeter) SI() float64 {
+	return float64(nm)
+}
+
+func (nm NewtonMeter) String() string {
+	return fmt.Sprintf("%.5gNm", float64(nm))
+}
+
+func ToNewtonMeter(v interface{}) NewtonMeter {
+	return NewtonMeter(SI(v))
+}
+
+// 长度：英寸
+type Inch float64
+
+func (inch Inch) SI() float64 {
+	return float64(inch) * 0.0254
+}
+
+func (inch Inch) String() string {
+	return fmt.Sprintf("%.4gin", float64(inch))
+}
+
+func ToInch(v interface{}) Inch {
+	return Inch(SI(v)) / 0.0254
+}
+
+// 长度：毫米
+type Millimeter float64
+
+func (mm Millimeter) SI() float64 {
+	return float64(mm) / 1000
+}
+
+func (mm Millimeter) String() string {
+	return fmt.Sprintf("%.5gmm", float64(mm))
+}
+
+func ToMillimeter(v interface{}) Millimeter {
+	return Millimeter(SI(v) * 1000)
 }
