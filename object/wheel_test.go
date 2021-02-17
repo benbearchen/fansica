@@ -8,7 +8,7 @@ import (
 
 func TestParseWheel(t *testing.T) {
 	check := func(spec string, d formula.Millimeter) {
-		w, err := ParseWheel(spec)
+		w, err := ParseWheel("", spec)
 		if err != nil {
 			if d != 0 {
 				t.Errorf("ParseWheel(%s) failed: %v", spec, err)

@@ -7,6 +7,9 @@ import (
 )
 
 type Object interface {
+	Name() string
+	String() string
+
 	Sockets() []Socket
 	Disband()
 

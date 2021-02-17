@@ -8,6 +8,7 @@ import (
 )
 
 type Wheel struct {
+	SimpleNamer
 	SimpleRotator
 
 	r       formula.Inch
@@ -19,7 +20,7 @@ type Wheel struct {
 	socket *SimpleRotatorSocket
 }
 
-func ParseWheel(spec string) (*Wheel, error) {
+func ParseWheel(name, spec string) (*Wheel, error) {
 	var w, p, r int
 	_, err := fmt.Sscanf(spec, "%d/%dR%d", &w, &p, &r)
 	if err != nil {
@@ -27,6 +28,7 @@ func ParseWheel(spec string) (*Wheel, error) {
 	}
 
 	wheel := new(Wheel)
+	wheel.name = name
 	wheel.r = formula.Inch(r)
 	wheel.width = formula.Millimeter(w)
 	wheel.profile = float64(p)
@@ -34,6 +36,10 @@ func ParseWheel(spec string) (*Wheel, error) {
 	wheel.socket = NewSimpleRotatorSocket(wheel)
 
 	return wheel, nil
+}
+
+func (wheel *Wheel) String() string {
+	return wheel.NamedString(wheel)
 }
 
 func (wheel *Wheel) Diameter() float64 {

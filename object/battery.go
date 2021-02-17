@@ -5,6 +5,7 @@ import (
 )
 
 type Battery struct {
+	SimpleNamer
 	SimpleElectric
 
 	capacity formula.KilowattHour
@@ -14,8 +15,9 @@ type Battery struct {
 	socket *SimpleElectricSocket
 }
 
-func NewBattery(capacity formula.KilowattHour, power formula.Kilowatt, powerMap formula.Map) *Battery {
+func NewBattery(name string, capacity formula.KilowattHour, power formula.Kilowatt, powerMap formula.Map) *Battery {
 	b := new(Battery)
+	b.name = name
 	b.capacity = capacity
 	b.maxPower = power
 	b.powerMap = powerMap
@@ -25,8 +27,12 @@ func NewBattery(capacity formula.KilowattHour, power formula.Kilowatt, powerMap 
 	return b
 }
 
-func EasyMakeBattery(capacity, power float64) *Battery {
-	return NewBattery(formula.KilowattHour(capacity), formula.Kilowatt(power), nil)
+func EasyMakeBattery(name string, capacity, power float64) *Battery {
+	return NewBattery(name, formula.KilowattHour(capacity), formula.Kilowatt(power), nil)
+}
+
+func (b *Battery) String() string {
+	return b.NamedString(b)
 }
 
 func (b *Battery) Sockets() []Socket {

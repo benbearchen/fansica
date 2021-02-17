@@ -5,6 +5,7 @@ import (
 )
 
 type Engine struct {
+	SimpleNamer
 	SimpleRotator
 
 	minRPM    formula.RotationPerMinute
@@ -18,8 +19,9 @@ type Engine struct {
 	socket *SimpleRotatorSocket
 }
 
-func NewEngine(minRPM, maxRPM formula.RotationPerMinute, torque formula.NewtonMeter, power formula.Kilowatt, eff formula.Map) *Engine {
+func NewEngine(name string, minRPM, maxRPM formula.RotationPerMinute, torque formula.NewtonMeter, power formula.Kilowatt, eff formula.Map) *Engine {
 	eng := new(Engine)
+	eng.name = name
 	eng.minRPM = minRPM
 	eng.maxRPM = maxRPM
 	eng.maxTorque = torque
@@ -31,8 +33,12 @@ func NewEngine(minRPM, maxRPM formula.RotationPerMinute, torque formula.NewtonMe
 	return eng
 }
 
-func EasyMakeEngine(maxRPM, torque, power float64) *Engine {
-	return NewEngine(formula.RotationPerMinute(800), formula.RotationPerMinute(maxRPM), formula.NewtonMeter(torque), formula.Kilowatt(power), nil)
+func EasyMakeEngine(name string, maxRPM, torque, power float64) *Engine {
+	return NewEngine(name, formula.RotationPerMinute(800), formula.RotationPerMinute(maxRPM), formula.NewtonMeter(torque), formula.Kilowatt(power), nil)
+}
+
+func (eng *Engine) String() string {
+	return eng.NamedString(eng)
 }
 
 func (eng *Engine) Sockets() []Socket {

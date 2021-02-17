@@ -3,14 +3,14 @@ package object
 import "testing"
 
 func TestCar(t *testing.T) {
-	b := EasyMakeBattery(40, 220)
-	eng := EasyMakeEngine(6500, 220, 96)
-	mg0 := EasyMakeMotor(100, 240, 12000)
-	mg1 := EasyMakeMotor(100, 240, 12000)
-	mg2 := EasyMakeMotor(140, 290, 12000)
-	wheel1, _ := ParseWheel("255/50R20")
-	wheel2, _ := ParseWheel("255/50R20")
-	pcu := NewPCU(4)
+	b := EasyMakeBattery("b0", 40, 220)
+	eng := EasyMakeEngine("ice", 6500, 220, 96)
+	mg0 := EasyMakeMotor("m0", 100, 240, 12000)
+	mg1 := EasyMakeMotor("m1", 100, 240, 12000)
+	mg2 := EasyMakeMotor("m2", 140, 290, 12000)
+	wheel1, _ := ParseWheel("wf", "255/50R20")
+	wheel2, _ := ParseWheel("wr", "255/50R20")
+	pcu := NewPCU("pcu", 4)
 
 	connectRotator := func(a, b Rotator) {
 		err := ConnectRotator(a, b)

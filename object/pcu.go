@@ -1,13 +1,16 @@
 package object
 
 type PCU struct {
+	SimpleNamer
 	SimpleElectric
 
 	sockets []*SimpleElectricSocket
 }
 
-func NewPCU(n int) *PCU {
+func NewPCU(name string, n int) *PCU {
 	pcu := new(PCU)
+	pcu.name = name
+
 	s := make([]*SimpleElectricSocket, n)
 	for i := range s {
 		s[i] = NewSimpleElectricSocket(pcu)
@@ -16,6 +19,10 @@ func NewPCU(n int) *PCU {
 	pcu.sockets = s
 
 	return pcu
+}
+
+func (pcu *PCU) String() string {
+	return pcu.NamedString(pcu)
 }
 
 func (pcu *PCU) Sockets() []Socket {

@@ -5,6 +5,7 @@ import (
 )
 
 type Motor struct {
+	SimpleNamer
 	SimpleRotator
 	SimpleElectric
 
@@ -19,8 +20,9 @@ type Motor struct {
 	socketE *SimpleElectricSocket
 }
 
-func NewMotor(power formula.Kilowatt, torque formula.NewtonMeter, rpm formula.RotationPerMinute, efficiency formula.Map) *Motor {
+func NewMotor(name string, power formula.Kilowatt, torque formula.NewtonMeter, rpm formula.RotationPerMinute, efficiency formula.Map) *Motor {
 	motor := new(Motor)
+	motor.name = name
 	motor.maxPower = power
 	motor.maxTorque = torque
 	motor.maxRPM = rpm
@@ -32,8 +34,12 @@ func NewMotor(power formula.Kilowatt, torque formula.NewtonMeter, rpm formula.Ro
 	return motor
 }
 
-func EasyMakeMotor(power, torque, rpm float64) *Motor {
-	return NewMotor(formula.Kilowatt(power), formula.NewtonMeter(torque), formula.RotationPerMinute(rpm), nil)
+func EasyMakeMotor(name string, power, torque, rpm float64) *Motor {
+	return NewMotor(name, formula.Kilowatt(power), formula.NewtonMeter(torque), formula.RotationPerMinute(rpm), nil)
+}
+
+func (motor *Motor) String() string {
+	return motor.NamedString(motor)
 }
 
 func (motor *Motor) Sockets() []Socket {

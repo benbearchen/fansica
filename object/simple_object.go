@@ -2,7 +2,32 @@ package object
 
 import (
 	"github.com/benbearchen/fansica/formula"
+
+	"reflect"
 )
+
+type Namer interface {
+	Name() string
+	TypeName(obj Object) string
+	NamedString(obj Object) string
+}
+
+type SimpleNamer struct {
+	name string
+}
+
+func (namer *SimpleNamer) Name() string {
+	return namer.name
+}
+
+func (namer *SimpleNamer) TypeName(obj Object) string {
+	t := reflect.TypeOf(obj).Elem()
+	return t.Name()
+}
+
+func (namer *SimpleNamer) NamedString(obj Object) string {
+	return namer.name + "(" + namer.TypeName(obj) + ")"
+}
 
 type SimpleRotator struct {
 	rpm    formula.RotationPerMinute
