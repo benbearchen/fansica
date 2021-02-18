@@ -59,7 +59,7 @@ func (s *SimpleRotatorSocket) Source() Object {
 	return s.SourceRotator()
 }
 
-func (s *SimpleRotatorSocket) Target() Object {
+func (s *SimpleRotatorSocket) Target() Socket {
 	return s.TargetRotator()
 }
 
@@ -96,8 +96,8 @@ func (s *SimpleRotatorSocket) SourceRotator() Rotator {
 	return s.source
 }
 
-func (s *SimpleRotatorSocket) TargetRotator() Rotator {
-	return s.target.Source().(Rotator)
+func (s *SimpleRotatorSocket) TargetRotator() RotatorSocket {
+	return s.target
 }
 
 func (s *SimpleRotatorSocket) ConnectRotator(rs RotatorSocket) error {
@@ -136,7 +136,7 @@ func (s *SimpleElectricSocket) Source() Object {
 	return s.SourceElectric()
 }
 
-func (s *SimpleElectricSocket) Target() Object {
+func (s *SimpleElectricSocket) Target() Socket {
 	return s.TargetElectric()
 }
 
@@ -173,8 +173,8 @@ func (s *SimpleElectricSocket) SourceElectric() Electric {
 	return s.source
 }
 
-func (s *SimpleElectricSocket) TargetElectric() Electric {
-	return s.target.Source().(Electric)
+func (s *SimpleElectricSocket) TargetElectric() ElectricSocket {
+	return s.target
 }
 
 func (s *SimpleElectricSocket) ConnectElectric(es ElectricSocket) error {

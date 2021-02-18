@@ -31,4 +31,7 @@ func TestNamer(t *testing.T) {
 
 	pcu := NewPCU("control", 4)
 	check(pcu, pcu, "control", "PCU", "control(PCU)", "PCU")
+
+	reducer := NewSingleReducer("sr", 3.104)
+	check(reducer, reducer, "sr", "SingleReducer", "sr(SingleReducer)", "SingleReducer")
 }

@@ -37,6 +37,10 @@ type Transmission interface {
 	SetRatio(r float64)
 }
 
+type Clutch interface {
+	Engage(engage bool)
+}
+
 type Electric interface {
 	Object
 
@@ -46,7 +50,7 @@ type Electric interface {
 
 type Socket interface {
 	Source() Object
-	Target() Object
+	Target() Socket
 
 	Connect(s Socket) error
 	IsConnected() bool
@@ -64,7 +68,7 @@ type RotatorSocket interface {
 	Socket
 
 	SourceRotator() Rotator
-	TargetRotator() Rotator
+	TargetRotator() RotatorSocket
 
 	ConnectRotator(rs RotatorSocket) error
 }
@@ -73,107 +77,7 @@ type ElectricSocket interface {
 	Socket
 
 	SourceElectric() Electric
-	TargetElectric() Electric
+	TargetElectric() ElectricSocket
 
 	ConnectElectric(es ElectricSocket) error
-}
-
-func SelectRotatorSocket(a Object, index int) (RotatorSocket, error) {
-	ss := a.Sockets()
-	c := 0
-	var first RotatorSocket
-	for _, s := range ss {
-		r, ok := s.(RotatorSocket)
-		if !ok {
-			continue
-		}
-
-		if index < 0 && first == nil {
-			first = r
-		}
-
-		if c == index {
-			return r, nil
-		} else {
-			c++
-		}
-	}
-
-	if c == 0 {
-		return nil, NoSocketError
-	}
-
-	if index < 0 {
-		if c == 1 {
-			return first, nil
-		} else {
-			return nil, MultiSocketError
-		}
-	} else {
-		return nil, NoSocketError
-	}
-}
-
-func ConnectRotator(a, b Object) error {
-	ra, err := SelectRotatorSocket(a, -1)
-	if err != nil {
-		return err
-	}
-
-	rb, err := SelectRotatorSocket(b, -1)
-	if err != nil {
-		return err
-	}
-
-	return ra.Connect(rb)
-}
-
-func SelectElectricSocket(a Object, index int) (ElectricSocket, error) {
-	ss := a.Sockets()
-	c := 0
-	var first ElectricSocket
-	for _, s := range ss {
-		e, ok := s.(ElectricSocket)
-		if !ok {
-			continue
-		}
-
-		if index < 0 && first == nil {
-			first = e
-		}
-
-		if c == index {
-			return e, nil
-		} else {
-			c++
-		}
-	}
-
-	if c == 0 {
-		return nil, NoSocketError
-	}
-
-	if index < 0 {
-		if c == 1 {
-			return first, nil
-		} else {
-			return nil, MultiSocketError
-		}
-	} else {
-		return nil, NoSocketError
-	}
-}
-
-func ConnectElectric(a, b Object, indexOfA int) error {
-	ea, err := SelectElectricSocket(a, indexOfA)
-	if err != nil {
-		return err
-	}
-
-	eb, err := SelectElectricSocket(b, -1)
-	if err != nil {
-		return err
-	}
-
-	return ea.Connect(eb)
 }
