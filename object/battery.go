@@ -6,7 +6,6 @@ import (
 
 type Battery struct {
 	SimpleNamer
-	SimpleElectric
 
 	capacity formula.KilowattHour
 	maxPower formula.Kilowatt
@@ -41,6 +40,18 @@ func (b *Battery) Sockets() []Socket {
 
 func (b *Battery) Disband() {
 	b.socket.Disband()
+}
+
+func (b *Battery) InputSocket(s Socket) error {
+	if s != b.socket {
+		return UnmatchSocketError
+	}
+
+	if b.socket.Power() > b.maxPower {
+		return OverflowError
+	}
+
+	return nil
 }
 
 func (b *Battery) SetController(c bool) {

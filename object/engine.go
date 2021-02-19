@@ -6,7 +6,6 @@ import (
 
 type Engine struct {
 	SimpleNamer
-	SimpleRotator
 
 	minRPM    formula.RotationPerMinute
 	maxRPM    formula.RotationPerMinute
@@ -49,10 +48,30 @@ func (eng *Engine) Disband() {
 	eng.socket.Disband()
 }
 
+func (eng *Engine) InputSocket(s Socket) error {
+	if s != eng.socket {
+		return UnmatchSocketError
+	}
+
+	if eng.socket.Power() > eng.maxPower || eng.socket.rpm > eng.maxRPM || eng.socket.rpm < eng.minRPM {
+		return OverflowError
+	}
+
+	return nil
+}
+
 func (eng *Engine) SetController(c bool) {
 	eng.controller = c
 }
 
 func (eng *Engine) IsController() bool {
 	return eng.controller
+}
+
+func (eng *Engine) SetSpeedOfRatotion(rpm formula.RotationPerMinute) {
+	eng.socket.SetSpeedOfRatotion(rpm)
+}
+
+func (eng *Engine) SetTorque(torque formula.NewtonMeter) {
+	eng.socket.SetTorque(torque)
 }

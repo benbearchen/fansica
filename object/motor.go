@@ -6,8 +6,6 @@ import (
 
 type Motor struct {
 	SimpleNamer
-	SimpleRotator
-	SimpleElectric
 
 	maxPower  formula.Kilowatt
 	maxTorque formula.NewtonMeter
@@ -49,6 +47,26 @@ func (motor *Motor) Sockets() []Socket {
 func (motor *Motor) Disband() {
 	motor.socketR.Disband()
 	motor.socketE.Disband()
+}
+
+func (motor *Motor) InputSocket(s Socket) error {
+	if s == motor.socketR {
+		if motor.socketR.rpm > motor.maxRPM || motor.socketR.Power() > motor.maxPower {
+			return OverflowError
+		}
+
+		// TODO: 输出功率？
+	} else if s == motor.socketE {
+		if motor.socketE.Power() > motor.maxPower {
+			return OverflowError
+		}
+
+		// TODO: 输出转速？？
+	} else {
+		return UnmatchSocketError
+	}
+
+	return nil
 }
 
 func (motor *Motor) SetController(c bool) {

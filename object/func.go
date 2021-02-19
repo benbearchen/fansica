@@ -119,6 +119,41 @@ func ChanRotator(a, b Object, r ...Reducer) error {
 	return socket.Connect(socketB)
 }
 
+func RotateChan(ctrl Object) error {
+	if !ctrl.IsController() {
+		return NotControllerError
+	}
+
+	socket, err := SelectRotatorSocket(ctrl, -1)
+	if err != nil {
+		if err != NoSocketError {
+			return nil
+		} else {
+			return err
+		}
+	} else if !socket.IsConnected() {
+		return nil
+	}
+
+	for socket != nil {
+		err = socket.RotateTorque()
+		if err != nil {
+			return err
+		}
+
+		s := socket.TargetRotator()
+		t := s.SourceRotator()
+		other, err := SelectOtherRotatorSocket(t, s)
+		if err != nil && err != NoSocketError {
+			return err
+		}
+
+		socket = other
+	}
+
+	return nil
+}
+
 func CountRotatorChanController(a Object) (count int, first Object) {
 	m := make(map[Object]bool)
 	m[a] = a.IsController()

@@ -2,6 +2,12 @@ package object
 
 import "testing"
 
+import (
+	"github.com/benbearchen/fansica/formula"
+
+	"log"
+)
+
 func TestCar(t *testing.T) {
 	b := EasyMakeBattery("b0", 40, 220)
 	eng := EasyMakeEngine("ice", 6500, 220, 96)
@@ -14,6 +20,8 @@ func TestCar(t *testing.T) {
 	wheel1, _ := ParseWheel("wf", "255/50R20")
 	wheel2, _ := ParseWheel("wr", "255/50R20")
 	pcu := NewPCU("pcu", 4)
+
+	log.Println(eng.Sockets(), sr0.Sockets(), mg0.Sockets())
 
 	chanRotator := func(a, b Rotator, c Reducer) {
 		err := ChanRotator(a, b, c)
@@ -68,4 +76,14 @@ func TestCar(t *testing.T) {
 	checkRotatorChan(mg2, 1, wheel2)
 	checkRotatorChan(sr2, 1, wheel2)
 	checkRotatorChan(wheel2, 1, wheel2)
+
+	eng.SetSpeedOfRatotion(formula.RotationPerMinute(2000))
+	eng.SetTorque(formula.NewtonMeter(100))
+
+	err := RotateChan(eng)
+	if err != nil {
+		t.Errorf("RotateChan(%v) failed: %v", eng, err)
+	} else {
+		log.Println(eng.Sockets(), sr0.Sockets(), mg0.Sockets())
+	}
 }

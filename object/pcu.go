@@ -2,7 +2,6 @@ package object
 
 type PCU struct {
 	SimpleNamer
-	SimpleElectric
 
 	sockets []*SimpleElectricSocket
 }
@@ -38,6 +37,18 @@ func (pcu *PCU) Disband() {
 	for _, s := range pcu.sockets {
 		s.Disband()
 	}
+}
+
+func (pcu *PCU) InputSocket(s Socket) error {
+	for _, socket := range pcu.sockets {
+		if socket != s {
+			continue
+		}
+
+		return nil
+	}
+
+	return UnmatchSocketError
 }
 
 func (pcu *PCU) SetController(c bool) {

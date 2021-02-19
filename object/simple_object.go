@@ -3,6 +3,7 @@ package object
 import (
 	"github.com/benbearchen/fansica/formula"
 
+	"fmt"
 	"reflect"
 )
 
@@ -29,30 +30,25 @@ func (namer *SimpleNamer) NamedString(obj Object) string {
 	return namer.name + "(" + namer.TypeName(obj) + ")"
 }
 
-type SimpleRotator struct {
+type SimpleRotatorSocket struct {
+	source Rotator
+	target RotatorSocket
+
 	rpm    formula.RotationPerMinute
 	torque formula.NewtonMeter
 }
 
-func (r *SimpleRotator) SetSpeedOfRatotion(rpm formula.RotationPerMinute) {
-	r.rpm = rpm
-}
-
-func (r *SimpleRotator) SetTorque(t formula.NewtonMeter) {
-	r.torque = t
-}
-
-func (r *SimpleRotator) Power() formula.Kilowatt {
-	return formula.CalcRotatorPower(r.rpm, r.torque)
-}
-
-type SimpleRotatorSocket struct {
-	source Rotator
-	target RotatorSocket
-}
-
 func NewSimpleRotatorSocket(source Rotator) *SimpleRotatorSocket {
-	return &SimpleRotatorSocket{source, nil}
+	return &SimpleRotatorSocket{source, nil, 0, 0}
+}
+
+func (s *SimpleRotatorSocket) String() string {
+	target := ""
+	if s.target != nil {
+		target = "<->" + s.target.Source().String()
+	}
+
+	return fmt.Sprintf("(%s%s, %v*%v)", s.source.String(), target, s.rpm, s.torque)
 }
 
 func (s *SimpleRotatorSocket) Source() Object {
@@ -92,6 +88,10 @@ func (s *SimpleRotatorSocket) Disband() {
 	}
 }
 
+func (s *SimpleRotatorSocket) Power() formula.Kilowatt {
+	return formula.CalcRotatorPower(s.rpm, s.torque)
+}
+
 func (s *SimpleRotatorSocket) SourceRotator() Rotator {
 	return s.source
 }
@@ -105,31 +105,41 @@ func (s *SimpleRotatorSocket) ConnectRotator(rs RotatorSocket) error {
 	return nil
 }
 
-type SimpleElectric struct {
-	voltage float64
-	current float64
+func (s *SimpleRotatorSocket) SetSpeedOfRatotion(rpm formula.RotationPerMinute) {
+	s.rpm = rpm
 }
 
-func (e *SimpleElectric) SetVoltage(v float64) {
-	e.voltage = v
+func (s *SimpleRotatorSocket) SetTorque(t formula.NewtonMeter) {
+	s.torque = t
 }
 
-func (e *SimpleElectric) SetCurrent(a float64) {
-	e.current = a
-}
+func (s *SimpleRotatorSocket) RotateTorque() error {
+	t := s.TargetRotator()
+	t.SetSpeedOfRatotion(s.rpm)
+	t.SetTorque(s.torque)
 
-func (e *SimpleElectric) Power() formula.Kilowatt {
-	w := e.voltage * e.current
-	return formula.ToKilowatt(w)
+	return t.Source().InputSocket(t)
 }
 
 type SimpleElectricSocket struct {
 	source Electric
 	target ElectricSocket
+
+	voltage float64
+	current float64
 }
 
 func NewSimpleElectricSocket(source Electric) *SimpleElectricSocket {
-	return &SimpleElectricSocket{source, nil}
+	return &SimpleElectricSocket{source, nil, 0, 0}
+}
+
+func (s *SimpleElectricSocket) String() string {
+	target := ""
+	if s.target != nil {
+		target = "<->" + s.target.Source().String()
+	}
+
+	return fmt.Sprintf("(%s%s, %.5gV*%.5gA)", s.source.String(), target, s.voltage, s.current)
 }
 
 func (s *SimpleElectricSocket) Source() Object {
@@ -169,6 +179,11 @@ func (s *SimpleElectricSocket) Disband() {
 	}
 }
 
+func (s *SimpleElectricSocket) Power() formula.Kilowatt {
+	w := s.voltage * s.current
+	return formula.ToKilowatt(w)
+}
+
 func (s *SimpleElectricSocket) SourceElectric() Electric {
 	return s.source
 }
@@ -180,4 +195,12 @@ func (s *SimpleElectricSocket) TargetElectric() ElectricSocket {
 func (s *SimpleElectricSocket) ConnectElectric(es ElectricSocket) error {
 	s.target = es
 	return nil
+}
+
+func (s *SimpleElectricSocket) SetVoltage(v float64) {
+	s.voltage = v
+}
+
+func (s *SimpleElectricSocket) SetCurrent(a float64) {
+	s.current = a
 }

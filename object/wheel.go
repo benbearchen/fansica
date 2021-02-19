@@ -9,7 +9,6 @@ import (
 
 type Wheel struct {
 	SimpleNamer
-	SimpleRotator
 
 	r       formula.Inch
 	width   formula.Millimeter
@@ -58,6 +57,14 @@ func (wheel *Wheel) Disband() {
 	wheel.socket.Disband()
 }
 
+func (wheel *Wheel) InputSocket(s Socket) error {
+	if s != wheel.socket {
+		return UnmatchSocketError
+	}
+
+	return nil
+}
+
 func (wheel *Wheel) SetController(c bool) {
 	wheel.controller = c
 }
@@ -67,6 +74,6 @@ func (wheel *Wheel) IsController() bool {
 }
 
 func (wheel *Wheel) Speed() formula.KilometerPerHour {
-	s := wheel.Perimeter() * formula.SI(wheel.rpm)
+	s := wheel.Perimeter() * formula.SI(wheel.socket.rpm)
 	return formula.ToKilometerPerHour(s)
 }

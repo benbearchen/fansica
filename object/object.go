@@ -13,15 +13,14 @@ type Object interface {
 	Sockets() []Socket
 	Disband()
 
+	InputSocket(s Socket) error
+
 	SetController(c bool)
 	IsController() bool
 }
 
 type Rotator interface {
 	Object
-
-	SetSpeedOfRatotion(rpm formula.RotationPerMinute)
-	SetTorque(t formula.NewtonMeter)
 }
 
 type Reducer interface {
@@ -43,9 +42,6 @@ type Clutch interface {
 
 type Electric interface {
 	Object
-
-	SetVoltage(v float64)
-	SetCurrent(a float64)
 }
 
 type Socket interface {
@@ -55,6 +51,8 @@ type Socket interface {
 	Connect(s Socket) error
 	IsConnected() bool
 	Disband()
+
+	Power() formula.Kilowatt
 }
 
 var (
@@ -62,6 +60,8 @@ var (
 	UnmatchSocketError = errors.New("unmatch socket")
 	UsedSocketError    = errors.New("used socket")
 	MultiSocketError   = errors.New("multi socket")
+	NotControllerError = errors.New("not controller")
+	OverflowError      = errors.New("arg overflow")
 )
 
 type RotatorSocket interface {
@@ -71,6 +71,11 @@ type RotatorSocket interface {
 	TargetRotator() RotatorSocket
 
 	ConnectRotator(rs RotatorSocket) error
+
+	SetSpeedOfRatotion(rpm formula.RotationPerMinute)
+	SetTorque(t formula.NewtonMeter)
+
+	RotateTorque() error
 }
 
 type ElectricSocket interface {
@@ -80,4 +85,7 @@ type ElectricSocket interface {
 	TargetElectric() ElectricSocket
 
 	ConnectElectric(es ElectricSocket) error
+
+	SetVoltage(v float64)
+	SetCurrent(a float64)
 }

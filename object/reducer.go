@@ -1,8 +1,11 @@
 package object
 
+import (
+	"github.com/benbearchen/fansica/formula"
+)
+
 type SingleReducer struct {
 	SimpleNamer
-	SimpleRotator
 
 	ratio float64
 
@@ -30,6 +33,23 @@ func (r *SingleReducer) Sockets() []Socket {
 func (r *SingleReducer) Disband() {
 	r.sockets[0].Disband()
 	r.sockets[1].Disband()
+}
+
+func (r *SingleReducer) InputSocket(s Socket) error {
+	// TODO: 扭矩方向？？
+	eff := 0.99
+	s0, s1 := r.sockets[0], r.sockets[1]
+	if s0 == s {
+		s1.SetSpeedOfRatotion(formula.RotationPerMinute(float64(s0.rpm) / r.Ratio()))
+		s1.SetTorque(formula.NewtonMeter(float64(s0.torque) * r.Ratio() * eff))
+	} else if s1 == s {
+		s0.SetSpeedOfRatotion(formula.RotationPerMinute(float64(s1.rpm) * r.Ratio()))
+		s0.SetTorque(formula.NewtonMeter(float64(s1.torque) / r.Ratio() / eff))
+	} else {
+		return UnmatchSocketError
+	}
+
+	return nil
 }
 
 func (r *SingleReducer) SetController(c bool) {
