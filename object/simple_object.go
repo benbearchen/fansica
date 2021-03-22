@@ -113,6 +113,15 @@ func (s *SimpleRotatorSocket) SetTorque(t formula.NewtonMeter) {
 	s.torque = t
 }
 
+func (s *SimpleRotatorSocket) SetPower(kw formula.Kilowatt) error {
+	if s.rpm == 0 {
+		return fmt.Errorf("SimpleRotatorSocket.rpm == 0")
+	} else {
+		s.torque = formula.CalcRotatorTorque(kw, s.rpm)
+		return nil
+	}
+}
+
 func (s *SimpleRotatorSocket) RotateTorque() error {
 	t := s.TargetRotator()
 	t.SetSpeedOfRatotion(s.rpm)
@@ -203,4 +212,13 @@ func (s *SimpleElectricSocket) SetVoltage(v float64) {
 
 func (s *SimpleElectricSocket) SetCurrent(a float64) {
 	s.current = a
+}
+
+func (s *SimpleElectricSocket) SetPower(kw formula.Kilowatt) error {
+	if s.voltage == 0 {
+		s.voltage = 220
+	}
+
+	s.current = formula.SI(kw) / s.voltage
+	return nil
 }

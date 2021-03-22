@@ -2,6 +2,8 @@ package object
 
 import (
 	"github.com/benbearchen/fansica/formula"
+
+	"fmt"
 )
 
 type Motor struct {
@@ -19,6 +21,7 @@ type Motor struct {
 }
 
 func NewMotor(name string, power formula.Kilowatt, torque formula.NewtonMeter, rpm formula.RotationPerMinute, efficiency formula.Map) *Motor {
+	// TODO:
 	motor := new(Motor)
 	motor.name = name
 	motor.maxPower = power
@@ -51,17 +54,35 @@ func (motor *Motor) Disband() {
 
 func (motor *Motor) InputSocket(s Socket) error {
 	if s == motor.socketR {
-		if motor.socketR.rpm > motor.maxRPM || motor.socketR.Power() > motor.maxPower {
+		powerInput := motor.socketR.Power()
+		if motor.socketR.rpm > motor.maxRPM || powerInput > motor.maxPower {
 			return OverflowError
 		}
 
-		// TODO: 输出功率？
+		eff, err := motor.efficiency(motor.socketR.rpm, motor.socketR.torque)
+		if err != nil {
+			return err
+		}
+
+		return motor.socketE.SetPower(powerInput * formula.Kilowatt(eff))
 	} else if s == motor.socketE {
-		if motor.socketE.Power() > motor.maxPower {
+		powerInput := motor.socketE.Power()
+		if powerInput > motor.maxPower {
 			return OverflowError
 		}
 
-		// TODO: 输出转速？？
+		rpm := motor.socketR.rpm
+		if rpm == 0 {
+			return fmt.Errorf("%s.socketR.rpm == 0", motor)
+		}
+
+		t := formula.CalcRotatorTorque(powerInput, rpm)
+		eff, err := motor.efficiency(rpm, t)
+		if err != nil {
+			return err
+		}
+
+		return motor.socketR.SetPower(powerInput * formula.Kilowatt(eff))
 	} else {
 		return UnmatchSocketError
 	}
@@ -75,4 +96,12 @@ func (motor *Motor) SetController(c bool) {
 
 func (motor *Motor) IsController() bool {
 	return motor.controller
+}
+
+func (motor *Motor) efficiency(rpm formula.RotationPerMinute, t formula.NewtonMeter) (float64, error) {
+	if motor.eff == nil {
+		return 0.9, nil
+	} else {
+		return motor.eff.Value(float64(rpm), float64(t))
+	}
 }
